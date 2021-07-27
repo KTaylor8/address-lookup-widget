@@ -12,7 +12,6 @@ function noAddressesErr(address) {
     // alt: display an element on page
 }
 
-// console.log('hello world');
 $('#addressSubmit').on('click', function() {
     let address = document.getElementById("addressInput").value;
     console.log(`address entered: ${address}`);
@@ -29,7 +28,6 @@ $('#addressSubmit').on('click', function() {
     //     '',
     //     'County Subdivisions'
     // ];
-    // let layers = '0'
     // let layers = layersArr.join(' ');
     let layers = 'all';
     let url = encodeURI(`https://geocoding.geo.census.gov/geocoder/geographies/onelineaddress?benchmark=${benchmark}&vintage=${vintage}&layers=${layers}&format=json&address=${address}`);
@@ -60,23 +58,22 @@ $('#addressSubmit').on('click', function() {
         }
         ,
         error: function( err ){
-            console.log('full error obj:');
             console.log(err);
-            // console.log(err.responseJSON.errors);
+            console.log(err.responseJSON);
             let errorMsg = '';
-            // for (let errorStr in err.responseJSON.errors) {
-            //     errorMsg += errorStr;
-            // }
             // most common error is if address is empty or >100 chars
-            let errs = err.responseJSON.errors || err.responseJSON.exceptions;
-            errs.forEach((errorStr) => {
-                errorMsg += errorStr;
-                console.log('ERROR (No response): ', errorStr);
-            });
+			try {
+				let errs = err.responseJSON.errors || err.responseJSON.exceptions;
+				console.log(errs);
+				errs.forEach((errorStr) => {
+					errorMsg += errorStr;
+					console.log('ERROR (No response): ', errorStr);
+				});
+			} catch (e) {
+				console.log('no responseJSON for error');
+				errorMsg = 'An error has occurred';
+			}
             alert(errorMsg);
         }
-        // ,
-        // complete: function() {
-        // }
     });
 });
