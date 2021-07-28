@@ -2,10 +2,26 @@
  * Widget made by Katie Taylor with advising by Peggy Gill
  */
 
+#addressLookupWidget {
+    max-width: 247px !important;
+}
+
 #results {
     display: none;
 }
 
 .singleResult {
     color: #112e51; /* navy blue */
+}
+
+#addressInput {
+    width: 100%;
+}
+
+#addressSubmit {
+    margin: 1rem 0;
+}
+
+#resultsDescriptor {
+    margin-bottom: 0.5rem;
 }

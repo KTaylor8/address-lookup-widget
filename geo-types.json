@@ -1,0 +1,34 @@
+{
+    "States": {
+        "geoType": "state",
+        "geoVar": "state"
+    },
+    "Counties": {
+        "geoType": "county",
+        "geoVar": "county"
+    },
+    "County Subdivisions": {
+        "geoType": "county subdivision",
+        "geoVar": "county_sub"
+    },
+    "Places": {
+        "geoType": "place",
+        "geoVar": "place"
+    },
+    "Census Tracts": {
+        "geoType": "tract",
+        "geoVar": "tract"
+    },
+    "2010 Census ZIP Code Tabulation Areas": {
+        "geoType": "zcta",
+        "geoVar": "zcta"
+    },
+    "Metropolitan Statistical Areas": {
+        "geoType": "msa",
+        "geoVar": "msa"
+    },
+    "Micropolitan Statistical Areas": {
+        "geoType": "msa",
+        "geoVar": "msa"
+    }
+}
