@@ -1,0 +1,11 @@
+/** CSS for Address Lookup Widget
+ * Widget made by Katie Taylor with advising by Peggy Gill
+ */
+
+#results {
+    display: none;
+}
+
+.singleResult {
+    color: #112e51; /* navy blue */
+}
