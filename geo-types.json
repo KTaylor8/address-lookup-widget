@@ -38,13 +38,5 @@
     "Federal American Indian Reservations": {
         "geoType": "aian",
         "geoVar": "aian"
-    },
-    "": {
-        "geoType": "aian",
-        "geoVar": "aian"
-    },
-    "": {
-        "geoType": "aian",
-        "geoVar": "aian"
     }
 }
