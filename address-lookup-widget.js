@@ -4,12 +4,17 @@
 
 // 1600 Pennsylvania Ave NW, Washington, DC 20500-0003
 // 9229 East Marginal Way South Tukwila, WA 98108
-// 3895 Punahele Rd, Princeville, Hawaii 96722
+// Micro: 3895 Punahele Rd, Princeville, Hawaii 96722
+// AIA: 9575 Ethan Wade Way SE, Snoqualmie, WA 98065
+// HH: 
+// ANA: 
 
 // Note: anything between the st address & city (e.g. apartment) is ignored automatically
 
 function noAddressesErr(address) {
-    alert(`No matches found for address "${address}"`);
+    alert(`No geographies found for address "${address}"`);
+    $('#resultsDescriptor').text(`No geographies found for address "${address}"`)
+    // $('#resultsList').empty();
     // alt: display an element on page
 }
 
@@ -106,16 +111,15 @@ https://www.census.gov/acs/www/data/data-tables-and-tools/narrative-profiles/201
  * Takes array of geographies & displays them on widget
  */
 function displayResults(geos) {
-    if ($("#results").css('display') === 'none') {
-        alert('sliding down results descriptor');
-        $("#results").slideDown();
-        $("#resultsDescriptor").slideDown();
+    let resultsSuccessText = 'Narrative Profiles for';
+    if ($('#resultsDescriptor').text() != resultsSuccessText) { // transition from pending text
+        $('#resultsDescriptor').text(resultsSuccessText);
     }
-    $("#resultsList").empty();
-    // $("#resultsList").append('<h4 style="margin-bottom: 20px;">Results:</h4>')
+    $('#resultsList').empty();
+    // $('#resultsList').append('<h4 style="margin-bottom: 20px;">Results:</h4>')
 
     // if () {
-    //     $("#resultsList").append('<p>No results found for that match!</p>');
+    //     $('#resultsList').append('<p>No results found for that match!</p>');
     // } else {
 
     // let displayOrder = [
@@ -136,9 +140,11 @@ function displayResults(geos) {
             html = $(`<p class="singleResult"><a href="${geoUrl}">${geoData.geoType}: ${geoData.name}<br>(${geoUrl})</a></p><hr>`); // for testing only
             // html = $(`<p class="singleResult"><a href="">${geoUrl}</a></p><hr>`); // testing only
             // html = $(`<p class="singleResult"><a href="">${geoData.geoType}: ${geoData.name}</a></p><hr>`); // testing only
+            $(html).css({display: 'none'});
 
 
-            $("#resultsList").append(html);
+            $('#resultsList').append(html);
+            console.log('appending result');
             $(html).slideDown();
         });
         
@@ -173,6 +179,7 @@ $('#addressSubmit').on('click', function() {
         success: function( resp ) {
             console.log(resp);
             // console.log(resp.result);
+            let match = resp.result.addressMatches;
             
             // sometimes errs returned on success
             if (resp.errors) {
@@ -182,11 +189,13 @@ $('#addressSubmit').on('click', function() {
                     console.log('ERROR in response: ', errorStr);
                 });
                 noAddressesErr(address);
-            } else if (resp.result.addressMatches.length === 0) {
+            } else if (match.length === 0) {
                 noAddressesErr(address);
+            } else if ( Object.entries(match[0].geographies).length === 0 ) {
+                console.log(`Error: The Census' TIGERweb API isn't returning any geographies for this address`);
             } else { // true success
-                console.log(`matchedAddress: ${resp.result.addressMatches[0].matchedAddress}`);
-                let geos = resp.result.addressMatches[0].geographies;
+                console.log(`matchedAddress: ${match[0].matchedAddress}`);
+                let geos = match[0].geographies;
                 console.log('Geos returned:');
                 console.log(geos);
                 console.log(`number of geos: ${Object.keys(geos).length}`);
