@@ -55,7 +55,7 @@ async function extractGeoData(geo) {
         name: geoInfo.NAME,
         geoType: geoType || null, // for geotype= param
         geoVar: geoVar || null, // for naming its own variable param
-        stateId: geoInfo.STATE || '',
+        // stateId: geoInfo.STATE || '',
         countyId: countyId, // ignore 1st 2 digits: stateId
         geoId: geoInfo.GEOID,
     };
@@ -64,8 +64,8 @@ async function extractGeoData(geo) {
     // displayResults2(geoData);
 }
 
-function makeNarrativeProfileUrl(geoData) {
-    let url = `https://www.census.gov/acs/www/data/data-tables-and-tools/narrative-profiles/2018/report.php?geotype=${geoData.geoType}`;
+function makeNarrativeProfileUrl(geoData, stateId) {
+    let url = `https://www.census.gov/acs/www/data/data-tables-and-tools/narrative-profiles/2019/report.php?geotype=${geoData.geoType}`;
     let considerState = ['county', 'place', 'tract', 'zcta', 'county subdivision'];
     // there seems to usually be a link between which geos require state/county id as a param in their narrative profiles url and that those geos also include those ids in the geoid, but not always
     // subdivision url doesn't need state param (but can't hurt) but it DOES need to have stateId removed from geoId
@@ -76,10 +76,10 @@ function makeNarrativeProfileUrl(geoData) {
 
     // determine additional query paramters to add
     if ( considerState.includes(geoData.geoType) ) {
-        url += `&state=${geoData.stateId}`;
+        url += `&state=${stateId}`;
         // remove stateId from geoId -- i tried to nest these but may need to be separate
-        if ( id.slice(0, geoData.stateId.length) === geoData.stateId ) { // not zcta
-            id = id.slice(geoData.stateId.length); 
+        if ( id.slice(0, stateId.length) === stateId ) { // not zcta
+            id = id.slice(stateId.length); 
             console.log(`id for ${geoData.geoType} after removing state: ${id}`);    
         }
 
@@ -135,11 +135,21 @@ function displayResults(geos) {
 
     // ]
 
-    // geos currently displayed in whatever order they get fetched from geocoder
-    geos.forEach((geo) => {
+    // issue: zcta requires state in params for narrative profiles, but geocoder api doesn't return STATE attribute (id) for that geography nor can it be derived from the zcta geoid
+    // solution: need to store stateId separately
+    let stateId = geos['States'][0]['GEOID'];
+    console.log(stateId);
+
+    let additionalParams = ['state', 'county'];
+
+
+    // geos currently displayed in whatever order they get fetched from geocoder, but I'll want to sort them into the order of the narrative profiles at some point
+    let geosArr = Object.entries(geos);
+    console.log(geosArr);
+    geosArr.forEach((geo) => {
         extractGeoData(geo).then( (geoData) => {
             // make narrative profile url from geo
-            let geoUrl = makeNarrativeProfileUrl(geoData);
+            let geoUrl = makeNarrativeProfileUrl(geoData, stateId);
             // console.log(makeNarrativeProfileUrl(geoData));
             // let geoUrl = '';
 
@@ -153,7 +163,7 @@ function displayResults(geos) {
 
 
             $('#resultsList').append(html);
-            console.log('appending result');
+            // console.log('appending result');
             $(html).slideDown();
         });
         
@@ -178,23 +188,23 @@ $('#addressSubmit').on('click', function() {
     console.log(`address entered: ${address}`);
     let benchmark = 'Public_AR_Current';
     let vintage = 'ACS2019_Current'; // current to ACS, not (decennial) Census
-    // let layersArr = [
-    //     'States',
-    //     'Counties',
-    //     'Census Designated Places',
-    //     'Incorporated Places',
-    //     'Census Tracts',
-    //     '2010 Census ZIP Code Tabulation Areas',
-    //     'Metropolitan Statistical Areas', // 'Metropolitan Statistical Areas' || 'Micropolitan Statistical Areas'
-    //     'Micropolitan Statistical Areas', // if I just put both, maybe it will get whichever one exists
-    //     'County Subdivisions',
-    //     //aian
-    //     'Federal American Indian Reservations',
-    //     '',
-    //     ''
-    // ];
-    // let layers = layersArr.join(',');
-    let layers = 'all';
+    let layersArr = [
+        'States',
+        'Counties',
+        'Census Designated Places',
+        'Incorporated Places',
+        'Census Tracts',
+        '2010 Census ZIP Code Tabulation Areas',
+        'Metropolitan Statistical Areas', // 'Metropolitan Statistical Areas' || 'Micropolitan Statistical Areas'
+        'Micropolitan Statistical Areas', // if I just put both, maybe it will get whichever one exists
+        'County Subdivisions',
+        //aian
+        'Federal American Indian Reservations',
+        '',
+        ''
+    ];
+    let layers = layersArr.join(',');
+    // let layers = 'all';
     let url = encodeURI(`https://geocoding.geo.census.gov/geocoder/geographies/onelineaddress?benchmark=${benchmark}&vintage=${vintage}&layers=${layers}&format=json&address=${address}`);
     $.ajax({
         url: url,
@@ -224,9 +234,7 @@ $('#addressSubmit').on('click', function() {
                 console.log('Geos returned:');
                 console.log(geos);
                 console.log(`number of geos: ${Object.keys(geos).length}`);
-                let geosArr = Object.entries(geos);
-                console.log(geosArr);
-                displayResults(geosArr);
+                displayResults(geos);
             }
         }
         ,
