@@ -11,7 +11,11 @@
         "geoType": "county subdivision",
         "geoVar": "county_sub"
     },
-    "Places": {
+    "Incorporated Places": {
+        "geoType": "place",
+        "geoVar": "place"
+    },
+    "Census Designated Places": {
         "geoType": "place",
         "geoVar": "place"
     },
@@ -30,5 +34,17 @@
     "Micropolitan Statistical Areas": {
         "geoType": "msa",
         "geoVar": "msa"
+    },
+    "Federal American Indian Reservations": {
+        "geoType": "aian",
+        "geoVar": "aian"
+    },
+    "": {
+        "geoType": "aian",
+        "geoVar": "aian"
+    },
+    "": {
+        "geoType": "aian",
+        "geoVar": "aian"
     }
 }

@@ -27,20 +27,29 @@ async function extractGeoData(geo) {
         // async: false,
         // success: processJson,
         error: () => {console.log(`cannot get data from ${geoTypesFile}`);}
-    }) // will need to change filepath
+    }); // will need to change filepath
     // console.log('past getJSON');
     // console.log('result: ', result);
     // console.log('accessing json to get geoData');
-    let geoType = json[geo[0]].geoType;
-    let geoVar = json[geo[0]].geoVar;
+    let geoType, geoVar;
+    if (json[geo[0]] === undefined) {
+        console.log(`unable to find geo ${geo[0]} in json`);
+    } else {
+        geoType = json[geo[0]].geoType;
+        geoVar = json[geo[0]].geoVar;
+    }
     // let geoType = geo[0]; // unsure at what point the geography type should be converted into singular geoType
     let geoInfo = geo[1][0];
     let countyId = '';
     try {
-        countyId = geoInfo?.COUNTY.slice(2, 5).padStart(3, '0') || null;
+        countyId = geoInfo?.COUNTY.slice(2, 5).padStart(3, '0') || '';
     } catch (e) {} // idk why short-circuiting still throws an error
     // console.log(geoInfo);
-    console.log(`county: ${countyId}`);
+    // console.log(`county: ${countyId}`);
+    if (geoInfo.STATE === '') {
+
+    }
+    console.log('zcta');
 
     let geoData = {
         name: geoInfo.NAME,
@@ -153,23 +162,39 @@ function displayResults(geos) {
 }
 
 $('#addressSubmit').on('click', function() {
-    let address = document.getElementById("addressInput").value;
+    /** clear traces of previous results */
+    $('#resultsList').empty();
+    $('#resultsDescriptor').text('Looking up address...');
+
+    if ($('#resultsDescriptor').css('display') === 'none') {
+        // alert('sliding down results descriptor');
+        // $('#results').slideDown();
+        $('#resultsDescriptor').slideDown('slow');
+        // $('#resultsList').slideDown();
+    }
+
+    /** process input */
+    let address = document.getElementById('addressInput').value;
     console.log(`address entered: ${address}`);
     let benchmark = 'Public_AR_Current';
     let vintage = 'ACS2019_Current'; // current to ACS, not (decennial) Census
-    let layersArr = [
-        'States',
-        'Counties',
-        'Places',
-        'Census Tracts',
-        '2010 Census ZIP Code Tabulation Areas',
-        'Metropolitan Statistical Areas', // 'Metropolitan Statistical Areas' || 'Micropolitan Statistical Areas'
-        'Micropolitan Statistical Areas',
-        // '', //aian
-        'County Subdivisions'
-    ];
-    let layers = layersArr.join(',');
-    // let layers = 'all';
+    // let layersArr = [
+    //     'States',
+    //     'Counties',
+    //     'Census Designated Places',
+    //     'Incorporated Places',
+    //     'Census Tracts',
+    //     '2010 Census ZIP Code Tabulation Areas',
+    //     'Metropolitan Statistical Areas', // 'Metropolitan Statistical Areas' || 'Micropolitan Statistical Areas'
+    //     'Micropolitan Statistical Areas', // if I just put both, maybe it will get whichever one exists
+    //     'County Subdivisions',
+    //     //aian
+    //     'Federal American Indian Reservations',
+    //     '',
+    //     ''
+    // ];
+    // let layers = layersArr.join(',');
+    let layers = 'all';
     let url = encodeURI(`https://geocoding.geo.census.gov/geocoder/geographies/onelineaddress?benchmark=${benchmark}&vintage=${vintage}&layers=${layers}&format=json&address=${address}`);
     $.ajax({
         url: url,
