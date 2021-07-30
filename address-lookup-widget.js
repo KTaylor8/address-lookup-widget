@@ -6,7 +6,7 @@
 // 9229 East Marginal Way South Tukwila, WA 98108
 // Micro: 3895 Punahele Rd, Princeville, Hawaii 96722
 // AIA: 9575 Ethan Wade Way SE, Snoqualmie, WA 98065
-// HH: ?? 168 Kahanu St, Kaunakakai, HI 96748
+// HH: 168 Kahanu St, Kaunakakai, HI 96748
 // ANA: ?? 498 Willow St, Kodiak, AK
 
 // Note: anything between the st address & city (e.g. apartment) is ignored automatically
@@ -46,10 +46,9 @@ async function extractGeoData(geo) {
     } catch (e) {} // idk why short-circuiting still throws an error
     // console.log(geoInfo);
     // console.log(`county: ${countyId}`);
-    if (geoInfo.STATE === '') {
 
-    }
-    console.log('zcta');
+    // geoId used as narrative profile url parameter should only include numbers
+    let geoId = geoInfo.GEOID.replace(/[^0-9]+/g, "");
 
     let geoData = {
         name: geoInfo.NAME,
@@ -57,7 +56,7 @@ async function extractGeoData(geo) {
         geoVar: geoVar || null, // for naming its own variable param
         // stateId: geoInfo.STATE || '',
         countyId: countyId, // ignore 1st 2 digits: stateId
-        geoId: geoInfo.GEOID,
+        geoId: geoId,
     };
     // console.log('geoData in async: ', geoData);
     return geoData;
@@ -65,7 +64,8 @@ async function extractGeoData(geo) {
 }
 
 function makeNarrativeProfileUrl(geoData, stateId) {
-    let url = `https://www.census.gov/acs/www/data/data-tables-and-tools/narrative-profiles/2019/report.php?geotype=${geoData.geoType}`;
+    let profilesYear = '2019';
+    let url = `https://www.census.gov/acs/www/data/data-tables-and-tools/narrative-profiles/${profilesYear}/report.php?geotype=${geoData.geoType}`;
     let considerState = ['county', 'place', 'tract', 'zcta', 'county subdivision'];
     // there seems to usually be a link between which geos require state/county id as a param in their narrative profiles url and that those geos also include those ids in the geoid, but not always
     // subdivision url doesn't need state param (but can't hurt) but it DOES need to have stateId removed from geoId
@@ -191,16 +191,18 @@ $('#addressSubmit').on('click', function() {
     let layersArr = [
         'States',
         'Counties',
+        'County Subdivisions',
+        // places:
         'Census Designated Places',
         'Incorporated Places',
         'Census Tracts',
         '2010 Census ZIP Code Tabulation Areas',
-        'Metropolitan Statistical Areas', // 'Metropolitan Statistical Areas' || 'Micropolitan Statistical Areas'
-        'Micropolitan Statistical Areas', // if I just put both, maybe it will get whichever one exists
-        'County Subdivisions',
-        //aian
+        // msas:
+        'Metropolitan Statistical Areas',
+        'Micropolitan Statistical Areas',
+        // aians:
         'Federal American Indian Reservations',
-        '',
+        'Hawaiian Home Lands',
         ''
     ];
     let layers = layersArr.join(',');
@@ -252,7 +254,7 @@ $('#addressSubmit').on('click', function() {
 				});
 			} catch (e) {
 				console.log(`no responseJSON for error. verify that it's not a cors issue`);
-				errorMsg = 'An error has occurred with the app / Geocoder service';
+				errorMsg = 'An unexpected error has occurred with the app / Geocoder service';
 			}
             alert(errorMsg);
         }

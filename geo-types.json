@@ -38,5 +38,9 @@
     "Federal American Indian Reservations": {
         "geoType": "aian",
         "geoVar": "aian"
+    },
+    "Hawaiian Home Lands": {
+        "geoType": "aian",
+        "geoVar": "aian"
     }
 }
