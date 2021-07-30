@@ -6,8 +6,8 @@
 // 9229 East Marginal Way South Tukwila, WA 98108
 // Micro: 3895 Punahele Rd, Princeville, Hawaii 96722
 // AIA: 9575 Ethan Wade Way SE, Snoqualmie, WA 98065
-// HH: 
-// ANA: 
+// HH: ?? 168 Kahanu St, Kaunakakai, HI 96748
+// ANA: ?? 498 Willow St, Kodiak, AK
 
 // Note: anything between the st address & city (e.g. apartment) is ignored automatically
 
@@ -159,7 +159,7 @@ function displayResults(geos) {
             html = $(`<p class="singleResult"><a href="${geoUrl}">${geoData.geoType}: ${geoData.name}<br>(${geoUrl})</a></p><hr>`); // for testing only
             // html = $(`<p class="singleResult"><a href="">${geoUrl}</a></p><hr>`); // testing only
             // html = $(`<p class="singleResult"><a href="">${geoData.geoType}: ${geoData.name}</a></p><hr>`); // testing only
-            $(html).css({display: 'none'});
+            // $(html).css({display: 'none'});
 
 
             $('#resultsList').append(html);
@@ -251,8 +251,8 @@ $('#addressSubmit').on('click', function() {
 					console.log('ERROR (No response): ', errorStr);
 				});
 			} catch (e) {
-				console.log('no responseJSON for error');
-				errorMsg = 'An error has occurred';
+				console.log(`no responseJSON for error. verify that it's not a cors issue`);
+				errorMsg = 'An error has occurred with the app / Geocoder service';
 			}
             alert(errorMsg);
         }
