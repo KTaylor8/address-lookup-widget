@@ -42,5 +42,9 @@
     "Hawaiian Home Lands": {
         "geoType": "aian",
         "geoVar": "aian"
+    },
+    "Alaska Native Village Statistical Areas": {
+        "geoType": "aian",
+        "geoVar": "aian"
     }
 }

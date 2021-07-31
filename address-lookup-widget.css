@@ -9,7 +9,7 @@
 #addressInput {
     width: 100%;
     word-break: break-word;
-    height: 5rem;
+    /* height: 5rem; */
 }
 
 #addressSubmit {

@@ -7,30 +7,24 @@
 // Micro: 3895 Punahele Rd, Princeville, Hawaii 96722
 // AIA: 9575 Ethan Wade Way SE, Snoqualmie, WA 98065
 // HH: 168 Kahanu St, Kaunakakai, HI 96748
-// ANA: ?? 498 Willow St, Kodiak, AK
+// ANA: 617 Rangeview Ave, Homer, AK 99603
 
 // Note: anything between the st address & city (e.g. apartment) is ignored automatically
 
 function noAddressesErr(address) {
     alert(`No geographies found for address "${address}"`);
     $('#resultsDescriptor').text(`No geographies found for address "${address}"`)
-    // $('#resultsList').empty();
     // alt: display an element on page
 }
 
 // varies based on geos used
 async function extractGeoData(geo) {
-    let geoTypesFile = './geo-types.json';
+    let geoTypesFile = './geo-types.json'; // will need to change filepath for web3
     const json = await $.ajax({
         url: geoTypesFile,
         dataType: 'json',
-        // async: false,
-        // success: processJson,
         error: () => {console.log(`cannot get data from ${geoTypesFile}`);}
-    }); // will need to change filepath
-    // console.log('past getJSON');
-    // console.log('result: ', result);
-    // console.log('accessing json to get geoData');
+    });
     let geoType, geoVar;
     if (json[geo[0]] === undefined) {
         console.log(`unable to find geo ${geo[0]} in json`);
@@ -38,14 +32,11 @@ async function extractGeoData(geo) {
         geoType = json[geo[0]].geoType;
         geoVar = json[geo[0]].geoVar;
     }
-    // let geoType = geo[0]; // unsure at what point the geography type should be converted into singular geoType
     let geoInfo = geo[1][0];
     let countyId = '';
     try {
         countyId = geoInfo?.COUNTY.slice(2, 5).padStart(3, '0') || '';
     } catch (e) {} // idk why short-circuiting still throws an error
-    // console.log(geoInfo);
-    // console.log(`county: ${countyId}`);
 
     // geoId used as narrative profile url parameter should only include numbers
     let geoId = geoInfo.GEOID.replace(/[^0-9]+/g, "");
@@ -56,11 +47,9 @@ async function extractGeoData(geo) {
         geoVar: geoVar || null, // for naming its own variable param
         // stateId: geoInfo.STATE || '',
         countyId: countyId, // ignore 1st 2 digits: stateId
-        geoId: geoId,
+        geoId: geoId, // for the val of the param that geoVar represents
     };
-    // console.log('geoData in async: ', geoData);
     return geoData;
-    // displayResults2(geoData);
 }
 
 function makeNarrativeProfileUrl(geoData, stateId) {
@@ -77,6 +66,7 @@ function makeNarrativeProfileUrl(geoData, stateId) {
     // determine additional query paramters to add
     if ( considerState.includes(geoData.geoType) ) {
         url += `&state=${stateId}`;
+        
         // remove stateId from geoId -- i tried to nest these but may need to be separate
         if ( id.slice(0, stateId.length) === stateId ) { // not zcta
             id = id.slice(stateId.length); 
@@ -85,6 +75,7 @@ function makeNarrativeProfileUrl(geoData, stateId) {
 
         if ( considerCounty.includes(geoData.geoType) ) {
             url += `&county=${geoData.countyId}`;
+
             // remove countyId from geoId
             if ( id.slice(0, geoData.countyId.length) === geoData.countyId) {
                 id = id.slice(geoData.countyId.length);
@@ -97,7 +88,7 @@ function makeNarrativeProfileUrl(geoData, stateId) {
     return url;
 }
 
-// 1600 Pennsylvania Ave NW, Washington, DC 20500-0003, United States
+// 1600 Pennsylvania Ave NW, Washington, DC 20500-0003
 // https://www.census.gov/acs/www/data/data-tables-and-tools/narrative-profiles/2018/report.php?geotype=state&state=11
 // geoId=11
 // https://www.census.gov/acs/www/data/data-tables-and-tools/narrative-profiles/2018/report.php?geotype=county&state=11&county=001
@@ -125,11 +116,6 @@ function displayResults(geos) {
         $('#resultsDescriptor').text(resultsSuccessText);
     }
     $('#resultsList').empty();
-    // $('#resultsList').append('<h4 style="margin-bottom: 20px;">Results:</h4>')
-
-    // if () {
-    //     $('#resultsList').append('<p>No results found for that match!</p>');
-    // } else {
 
     // let displayOrder = [
 
@@ -157,13 +143,8 @@ function displayResults(geos) {
             let html;
             // html = $(`<p class="singleResult"><a href="${geoUrl}">${geoData.geoType}: ${geoData.name}</a></p><hr>`);
             html = $(`<p class="singleResult"><a href="${geoUrl}">${geoData.geoType}: ${geoData.name}<br>(${geoUrl})</a></p><hr>`); // for testing only
-            // html = $(`<p class="singleResult"><a href="">${geoUrl}</a></p><hr>`); // testing only
-            // html = $(`<p class="singleResult"><a href="">${geoData.geoType}: ${geoData.name}</a></p><hr>`); // testing only
-            // $(html).css({display: 'none'});
-
 
             $('#resultsList').append(html);
-            // console.log('appending result');
             $(html).slideDown();
         });
         
@@ -177,10 +158,7 @@ $('#addressSubmit').on('click', function() {
     $('#resultsDescriptor').text('Looking up address...');
 
     if ($('#resultsDescriptor').css('display') === 'none') {
-        // alert('sliding down results descriptor');
-        // $('#results').slideDown();
         $('#resultsDescriptor').slideDown('slow');
-        // $('#resultsList').slideDown();
     }
 
     /** process input */
@@ -203,7 +181,7 @@ $('#addressSubmit').on('click', function() {
         // aians:
         'Federal American Indian Reservations',
         'Hawaiian Home Lands',
-        ''
+        'Alaska Native Village Statistical Areas'
     ];
     let layers = layersArr.join(',');
     // let layers = 'all';
@@ -215,7 +193,6 @@ $('#addressSubmit').on('click', function() {
         crossDomain: true,
         success: function( resp ) {
             console.log(resp);
-            // console.log(resp.result);
             let match = resp.result.addressMatches;
             
             // sometimes errs returned on success
@@ -231,11 +208,11 @@ $('#addressSubmit').on('click', function() {
             } else if ( Object.entries(match[0].geographies).length === 0 ) {
                 console.log(`Error: The Census' TIGERweb API isn't returning any geographies for this address`);
             } else { // true success
-                console.log(`matchedAddress: ${match[0].matchedAddress}`);
+                // console.log(`matchedAddress: ${match[0].matchedAddress}`);
                 let geos = match[0].geographies;
-                console.log('Geos returned:');
-                console.log(geos);
-                console.log(`number of geos: ${Object.keys(geos).length}`);
+                // console.log('Geos returned:');
+                // console.log(geos);
+                // console.log(`number of geos: ${Object.keys(geos).length}`);
                 displayResults(geos);
             }
         }
@@ -243,6 +220,7 @@ $('#addressSubmit').on('click', function() {
         error: function( err ){
             console.log(err);
             console.log(err.responseJSON);
+
             let errorMsg = '';
             // most common error is if address is empty or >100 chars
 			try {
