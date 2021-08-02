@@ -35,7 +35,7 @@ async function extractGeoData(geo) {
     }
     let geoInfo = geo[1][0];
 
-    let countyId = geoInfo.COUNTY?.padStart(3, '0') || '';
+    let countyId = geoInfo.COUNTY?.padStart(3, '0') || undefined;
 
     // geoId used as narrative profile url parameter should only include numbers
     let geoId = geoInfo.GEOID.replace(/[^0-9]+/g, '');
@@ -57,47 +57,45 @@ async function extractGeoData(geo) {
  * @param {string} stateId substitute for undefined geoData.stateId (e.g. for ZCTA), sourced from States geo
  * @returns {string} url for geography's narrative profile
  */
-function makeNarrativeProfileUrl(geoData, stateId) {
+function makeNarrativeProfileUrl(geoData) {
     let profilesYear = '2019';
     let url = `https://www.census.gov/acs/www/data/data-tables-and-tools/narrative-profiles/${profilesYear}/report.php?geotype=${geoData.geoType}`;
-    let considerState = ['county', 'place', 'tract', 'zcta', 'county subdivision'];
-    let considerCounty = ['tract', 'county subdivision'];
+    // let considerState = ['county', 'place', 'tract', 'zcta', 'county subdivision'];
+    // let considerCounty = ['tract', 'county subdivision'];
     let id = geoData.geoId; // id used in url isn't always geoId
 
     // determine additional query paramters to add
-    if ( considerState.includes(geoData.geoType) ) {
-        if (geoData.geoType === 'tract') {
-            console.log(`countyId for tract === ${geoData.countyId}`);
-        }
+    // if ( considerState.includes(geoData.geoType) ) {
 
-        let st = undefined;
-        try {
-            st = geoData.stateId || stateId;
-            // console.log(`st for ${geoData.geoType} = ${st}`);
-            // posssible that they may differ for geos that stretch over multiple states
-        } catch (e) {
-            console.log('Neither a STATE attribute for this geography nor a geoId from the state geography has been detected. You need one or the other in order to create links to each narrative profile.');
-            alert('An error occurred while processing data for your address. Any links returned by this tool may not function correctly.');
-        }
+        let st = geoData.stateId;
+        // let st = undefined;
+        // try {
+        //     st = geoData.stateId || stateId;
+        //     // console.log(`st for ${geoData.geoType} = ${st}`);
+        //     // posssible that they may differ for geos that stretch over multiple states
+        // } catch (e) {
+        //     console.log('Neither a STATE attribute for this geography nor a geoId from the state geography has been detected. You need one or the other in order to create links to each narrative profile.');
+        //     alert('An error occurred while processing data for your address. Any links returned by this tool may not function correctly.');
+        // }
         
         url += `&state=${st}`;
 
         // remove stateId from geoId
-        if ( id.slice(0, st.length) === st ) { // excludes zcta
+        // if ( id.slice(0, st.length) === st ) { // excludes zcta
             id = id.slice(st.length); 
             // console.log(`id for ${geoData.geoType} after removing state: ${id}`);    
-        }
+        // }
 
-        if ( considerCounty.includes(geoData.geoType) ) {
+        // if ( considerCounty.includes(geoData.geoType) ) {
             url += `&county=${geoData.countyId}`;
 
-            // remove countyId from geoId
-            if ( id.slice(0, geoData.countyId.length) === geoData.countyId) {
+        //     // remove countyId from geoId
+        //     if ( id.slice(0, geoData.countyId.length) === geoData.countyId) {
                 id = id.slice(geoData.countyId.length);
                 // console.log(`id for ${geoData.geoType} after removing county: ${id}`);
-            }
-        }
-    }
+        //     }
+        // }
+    // }
     url += `&${geoData.geoVar}=${id}`;
     url = encodeURI(url);
     return url;
@@ -108,7 +106,7 @@ function makeNarrativeProfileUrl(geoData, stateId) {
  * @param {Array} geos 
  */
 function displayResults(geos) {
-    let resultsSuccessText = 'Results:';
+    let resultsSuccessText = 'Result:';
     if ($('#resultsDescriptor').text() != resultsSuccessText) { // transition from pending text
         $('#resultsDescriptor').text(resultsSuccessText);
     }
@@ -117,15 +115,15 @@ function displayResults(geos) {
     // let displayOrder = [
     // ]
 
-    let stateGeoId = geos.States?.[0].GEOID || undefined;
-    console.log(stateGeoId);
+    // let stateGeoId = geos.States?.[0].GEOID || undefined;
+    // console.log(stateGeoId);
 
     
     let geosArr = Object.entries(geos);
     console.log(geosArr);
     geosArr.forEach((geo) => {
         extractGeoData(geo).then( (geoData) => {
-            let geoUrl = makeNarrativeProfileUrl(geoData, stateGeoId);
+            let geoUrl = makeNarrativeProfileUrl(geoData);
 
             let html = $(`<p class="singleResult"><a href="${geoUrl}">View ${geoData.name} Narrative Profile</a></p><hr>`);
             // let html = $(`<p class="singleResult"><a href="${geoUrl}">${geoData.geoType}: ${geoData.name}<br>(${geoUrl})</a></p><hr>`); // for testing only
@@ -154,21 +152,21 @@ $('#addressSubmit').on('click', function() {
     let benchmark = 'Public_AR_Current';
     let vintage = 'ACS2019_Current'; // current to ACS, not (decennial) Census
     let layersArr = [
-        'States', // required for '2010 Census ZIP Code Tabulation Areas' layer
-        '2010 Census ZIP Code Tabulation Areas', // requires 'States' layer
-        'Counties',
-        'County Subdivisions',
         'Census Tracts',
-        // places:
-        'Census Designated Places',
-        'Incorporated Places',
-        // msas:
-        'Metropolitan Statistical Areas',
-        'Micropolitan Statistical Areas',
-        // aians:
-        'Federal American Indian Reservations',
-        'Hawaiian Home Lands',
-        'Alaska Native Village Statistical Areas'
+        // 'States', // required for '2010 Census ZIP Code Tabulation Areas' layer
+        // '2010 Census ZIP Code Tabulation Areas', // requires 'States' layer
+        // 'Counties',
+        // 'County Subdivisions',
+        // // places:
+        // 'Census Designated Places',
+        // 'Incorporated Places',
+        // // msas:
+        // 'Metropolitan Statistical Areas',
+        // 'Micropolitan Statistical Areas',
+        // // aians:
+        // 'Federal American Indian Reservations',
+        // 'Hawaiian Home Lands',
+        // 'Alaska Native Village Statistical Areas'
     ];
     let layers = layersArr.join(',');
     // let layers = 'all';
@@ -179,7 +177,7 @@ $('#addressSubmit').on('click', function() {
         dataType: 'json',
         crossDomain: true,
         success: function( resp ) {
-            console.log(resp);
+            // console.log(resp);
             let match = resp.result.addressMatches;
             
             // sometimes errs returned on success
