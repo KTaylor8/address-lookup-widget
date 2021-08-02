@@ -84,7 +84,7 @@ function makeNarrativeProfileUrl(geoData, stateId) {
         // remove stateId from geoId -- i tried to nest these but may need to be separate
         if ( id.slice(0, st.length) === st ) { // not zcta
             id = id.slice(st.length); 
-            console.log(`id for ${geoData.geoType} after removing state: ${id}`);    
+            // console.log(`id for ${geoData.geoType} after removing state: ${id}`);    
         }
 
         if ( considerCounty.includes(geoData.geoType) ) {
@@ -93,7 +93,7 @@ function makeNarrativeProfileUrl(geoData, stateId) {
             // remove countyId from geoId
             if ( id.slice(0, geoData.countyId.length) === geoData.countyId) {
                 id = id.slice(geoData.countyId.length);
-                console.log(`id for ${geoData.geoType} after removing county: ${id}`);
+                // console.log(`id for ${geoData.geoType} after removing county: ${id}`);
             }
         }
     }
@@ -125,7 +125,7 @@ https://www.census.gov/acs/www/data/data-tables-and-tools/narrative-profiles/201
  * Takes array of geographies & displays them on widget
  */
 function displayResults(geos) {
-    let resultsSuccessText = 'Narrative Profiles for';
+    let resultsSuccessText = 'Results:';
     if ($('#resultsDescriptor').text() != resultsSuccessText) { // transition from pending text
         $('#resultsDescriptor').text(resultsSuccessText);
     }
@@ -140,8 +140,6 @@ function displayResults(geos) {
     let stateGeoId = geos.States?.[0].GEOID || undefined;
     console.log(stateGeoId);
 
-    // let additionalParams = ['state', 'county'];
-
     // geos currently displayed in whatever order they get fetched from geocoder, but I'll want to sort them into the order of the narrative profiles at some point
     let geosArr = Object.entries(geos);
     console.log(geosArr);
@@ -149,20 +147,15 @@ function displayResults(geos) {
         extractGeoData(geo).then( (geoData) => {
             // make narrative profile url from geo
             let geoUrl = makeNarrativeProfileUrl(geoData, stateGeoId);
-            // console.log(makeNarrativeProfileUrl(geoData));
-            // let geoUrl = '';
 
             // display result on page
-            // let html;
-            // html = $(`<p class="singleResult"><a href="${geoUrl}">${geoData.geoType}: ${geoData.name}</a></p><hr>`);
-            let html = $(`<p class="singleResult"><a href="${geoUrl}">${geoData.geoType}: ${geoData.name}<br>(${geoUrl})</a></p><hr>`); // for testing only
+            let html = $(`<p class="singleResult"><a href="${geoUrl}">View ${geoData.name} Narrative Profile</a></p><hr>`);
+            // let html = $(`<p class="singleResult"><a href="${geoUrl}">${geoData.geoType}: ${geoData.name}<br>(${geoUrl})</a></p><hr>`); // for testing only
 
             $('#resultsList').append(html);
             $(html).slideDown();
-        });
-        
+        }); 
     });
-    
 }
 
 $('#addressSubmit').on('click', function() {

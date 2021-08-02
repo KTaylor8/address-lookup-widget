@@ -30,11 +30,11 @@
 
 .singleResult {
     display: none;
-    /* font-size: 1.5rem; */
+    font-size: 1.25rem;
 }
 
 /* census patterns appear to be getting overwritten by bootstrap.css */
-/* .singleResult a {
+.singleResult a {
     color: #008392;
-    text-decoration: none;
-} */
+    /* text-decoration: none; */
+}
