@@ -57,7 +57,7 @@ async function extractGeoData(geo) {
  * @param {string} stateId substitute for undefined geoData.stateId (e.g. for ZCTA), sourced from States geo
  * @returns {string} url for geography's narrative profile
  */
-function makeNarrativeProfileUrl(geoData) {
+function makeNarrativeProfileUrl(geoData, stateId = undefined) {
     let profilesYear = '2019';
     let url = `https://www.census.gov/acs/www/data/data-tables-and-tools/narrative-profiles/${profilesYear}/report.php?geotype=${geoData.geoType}`;
     // let considerState = ['county', 'place', 'tract', 'zcta', 'county subdivision'];
