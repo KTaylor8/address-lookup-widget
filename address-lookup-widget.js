@@ -33,19 +33,19 @@ async function extractGeoData(geo) {
         geoVar = json[geo[0]].geoVar;
     }
     let geoInfo = geo[1][0];
-    let countyId = '';
-    try {
-        countyId = geoInfo?.COUNTY.slice(2, 5).padStart(3, '0') || '';
-    } catch (e) {} // idk why short-circuiting still throws an error
+    // let countyId = '';
+    // try {
+    let countyId = geoInfo.COUNTY?.slice(2, 5).padStart(3, '0') || '';
+    // } catch (e) {} // idk why short-circuiting still throws an error
 
     // geoId used as narrative profile url parameter should only include numbers
-    let geoId = geoInfo.GEOID.replace(/[^0-9]+/g, "");
+    let geoId = geoInfo.GEOID.replace(/[^0-9]+/g, '');
 
     let geoData = {
         name: geoInfo.NAME,
-        geoType: geoType || null, // for geotype= param
-        geoVar: geoVar || null, // for naming its own variable param
-        // stateId: geoInfo.STATE || '',
+        geoType: geoType || undefined, // for geotype= param
+        geoVar: geoVar || undefined, // for naming its own variable param
+        stateId: geoInfo.STATE || undefined, // only used if zcta is NOT 1 of the requested geos
         countyId: countyId, // ignore 1st 2 digits: stateId
         geoId: geoId, // for the val of the param that geoVar represents
     };
@@ -65,11 +65,23 @@ function makeNarrativeProfileUrl(geoData, stateId) {
 
     // determine additional query paramters to add
     if ( considerState.includes(geoData.geoType) ) {
-        url += `&state=${stateId}`;
+        let st = undefined;
+        try {
+            console.log(`geoData.stateId for ${geoData.geoType}: ${geoData.stateId}`);
+            console.log(`stateId for ${geoData.geoType}: ${stateId}`);
+            st = geoData.stateId || stateId;
+            console.log(`st for ${geoData.geoType} = ${st}`);
+            // posssible that they may differ for geos that stretch over multiple states
+        } catch (e) {
+            console.log('Neither a STATE attribute for this geography nor a geoId from the state geography has been detected. You need one or the other in order to create links to each narrative profile.');
+            alert('An error occurred while processing data for your address. Any links returned by this tool may not function correctly.');
+        }
         
+        url += `&state=${st}`;
+
         // remove stateId from geoId -- i tried to nest these but may need to be separate
-        if ( id.slice(0, stateId.length) === stateId ) { // not zcta
-            id = id.slice(stateId.length); 
+        if ( id.slice(0, st.length) === st ) { // not zcta
+            id = id.slice(st.length); 
             console.log(`id for ${geoData.geoType} after removing state: ${id}`);    
         }
 
@@ -122,12 +134,11 @@ function displayResults(geos) {
     // ]
 
     // issue: zcta requires state in params for narrative profiles, but geocoder api doesn't return STATE attribute (id) for that geography nor can it be derived from the zcta geoid
-    // solution: need to store stateId separately
-    let stateId = geos['States'][0]['GEOID'];
-    console.log(stateId);
+    // solution: need to store state id separately
+    let stateGeoId = geos.States?.[0].GEOID || undefined;
+    console.log(stateGeoId);
 
-    let additionalParams = ['state', 'county'];
-
+    // let additionalParams = ['state', 'county'];
 
     // geos currently displayed in whatever order they get fetched from geocoder, but I'll want to sort them into the order of the narrative profiles at some point
     let geosArr = Object.entries(geos);
@@ -135,14 +146,14 @@ function displayResults(geos) {
     geosArr.forEach((geo) => {
         extractGeoData(geo).then( (geoData) => {
             // make narrative profile url from geo
-            let geoUrl = makeNarrativeProfileUrl(geoData, stateId);
+            let geoUrl = makeNarrativeProfileUrl(geoData, stateGeoId);
             // console.log(makeNarrativeProfileUrl(geoData));
             // let geoUrl = '';
 
             // display result on page
-            let html;
+            // let html;
             // html = $(`<p class="singleResult"><a href="${geoUrl}">${geoData.geoType}: ${geoData.name}</a></p><hr>`);
-            html = $(`<p class="singleResult"><a href="${geoUrl}">${geoData.geoType}: ${geoData.name}<br>(${geoUrl})</a></p><hr>`); // for testing only
+            let html = $(`<p class="singleResult"><a href="${geoUrl}">${geoData.geoType}: ${geoData.name}<br>(${geoUrl})</a></p><hr>`); // for testing only
 
             $('#resultsList').append(html);
             $(html).slideDown();
@@ -167,14 +178,14 @@ $('#addressSubmit').on('click', function() {
     let benchmark = 'Public_AR_Current';
     let vintage = 'ACS2019_Current'; // current to ACS, not (decennial) Census
     let layersArr = [
-        'States',
+        'States', // required for '2010 Census ZIP Code Tabulation Areas' layer
+        '2010 Census ZIP Code Tabulation Areas', // requires 'States' layer
         'Counties',
         'County Subdivisions',
+        'Census Tracts',
         // places:
         'Census Designated Places',
         'Incorporated Places',
-        'Census Tracts',
-        '2010 Census ZIP Code Tabulation Areas',
         // msas:
         'Metropolitan Statistical Areas',
         'Micropolitan Statistical Areas',
