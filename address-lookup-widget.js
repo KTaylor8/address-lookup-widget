@@ -33,10 +33,8 @@ async function extractGeoData(geo) {
         geoVar = json[geo[0]].geoVar;
     }
     let geoInfo = geo[1][0];
-    // let countyId = '';
-    // try {
-    let countyId = geoInfo.COUNTY?.slice(2, 5).padStart(3, '0') || '';
-    // } catch (e) {} // idk why short-circuiting still throws an error
+
+    let countyId = geoInfo.COUNTY?.padStart(3, '0') || '';
 
     // geoId used as narrative profile url parameter should only include numbers
     let geoId = geoInfo.GEOID.replace(/[^0-9]+/g, '');
@@ -65,12 +63,16 @@ function makeNarrativeProfileUrl(geoData, stateId) {
 
     // determine additional query paramters to add
     if ( considerState.includes(geoData.geoType) ) {
+        if (geoData.geoType === 'tract') {
+            console.log(`countyId for tract === ${geoData.countyId}`);
+        }
+
         let st = undefined;
         try {
-            console.log(`geoData.stateId for ${geoData.geoType}: ${geoData.stateId}`);
-            console.log(`stateId for ${geoData.geoType}: ${stateId}`);
+            // console.log(`geoData.stateId for ${geoData.geoType}: ${geoData.stateId}`);
+            // console.log(`stateId for ${geoData.geoType}: ${stateId}`);
             st = geoData.stateId || stateId;
-            console.log(`st for ${geoData.geoType} = ${st}`);
+            // console.log(`st for ${geoData.geoType} = ${st}`);
             // posssible that they may differ for geos that stretch over multiple states
         } catch (e) {
             console.log('Neither a STATE attribute for this geography nor a geoId from the state geography has been detected. You need one or the other in order to create links to each narrative profile.');
