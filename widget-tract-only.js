@@ -125,8 +125,8 @@ function displayResults(geos) {
         extractGeoData(geo).then( (geoData) => {
             let geoUrl = makeNarrativeProfileUrl(geoData);
 
-            let html = $(`<p class="singleResult"><a href="${geoUrl}">View ${geoData.name} Narrative Profile</a></p><hr>`);
-            // let html = $(`<p class="singleResult"><a href="${geoUrl}">${geoData.geoType}: ${geoData.name}<br>(${geoUrl})</a></p><hr>`); // for testing only
+            let html = $(`<p class="singleResult"><a href="${geoUrl}" target="_blank">View ${geoData.name} Narrative Profile</a></p><hr>`);
+            // let html = $(`<p class="singleResult"><a href="${geoUrl}" target="_blank">${geoData.geoType}: ${geoData.name}<br>(${geoUrl})</a></p><hr>`); // for testing only
 
             $('#resultsList').append(html);
             $(html).slideDown();
