@@ -37,7 +37,7 @@ These are the main addresses used during testing.
 
 ## How to Add a New Geography
 
-1. Add the official layer name to layersArr defined in address-lookup-widget.js. This will be the layer queried to the Geocoder API. You can find the official layer name to use by pasting an address at the end of the API endpoing <https://geocoding.geo.census.gov/geocoder/geographies/onelineaddress?benchmark=Public_AR_Current&vintage=ACS2019_Current&layers=all&format=json&address=> and looking for relevant layer names in the geographies returned. There are layers in the Geocoder API layers documentation that have names that seem relevant but are not actually returned in API calls, even when set to return all layers.
+1. Add the official layer name to layersArr defined in address-lookup-widget.js. This will be the layer queried to the Geocoder API. You can find the official layer name to use by pasting an address at the end of the API endpoing <https://geocoding.geo.census.gov/geocoder/geographies/onelineaddress?benchmark=Public_AR_Current&vintage=ACS2019_Current&layers=all&format=json&address=> (which queries for layers=all to the API endpoint) and looking for relevant layer names in the geographies returned. There are layers in the Geocoder API layers documentation that have names that seem relevant but are not actually returned in API calls, even when set to return all layers.
 2. If creating narrative profile URLs: add a new entry in geo-types.json of the form
    """
    "official layer name" : {
