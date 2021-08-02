@@ -2,22 +2,23 @@
  * Widget made by Katie Taylor with advising by Peggy Gill
 */
 
-// 1600 Pennsylvania Ave NW, Washington, DC 20500-0003
-// 9229 East Marginal Way South Tukwila, WA 98108
-// Micro: 3895 Punahele Rd, Princeville, Hawaii 96722
-// AIA: 9575 Ethan Wade Way SE, Snoqualmie, WA 98065
-// HH: 168 Kahanu St, Kaunakakai, HI 96748
-// ANA: 617 Rangeview Ave, Homer, AK 99603
-
-// Note: anything between the st address & city (e.g. apartment) is ignored automatically
-
+/**
+ * Indicate that no geographies were found for an address
+ * (May be used to display an element on the page to indicate the error)
+ * @param {string} address address entered by user
+ */
 function noAddressesErr(address) {
     alert(`No geographies found for address "${address}"`);
     $('#resultsDescriptor').text(`No geographies found for address "${address}"`)
-    // alt: display an element on page
+    // alt option: display an element on page
 }
 
-// varies based on geos used
+/**
+ * Extracts data from geographies returned by Geocoder API and turns it into a usable geoData object
+ * (Will vary based on geos used)
+ * @param {Array} geo Geography data returned by Geocoder API
+ * @returns {Object} geoData
+ */
 async function extractGeoData(geo) {
     let geoTypesFile = './geo-types.json'; // will need to change filepath for web3
     const json = await $.ajax({
@@ -43,21 +44,23 @@ async function extractGeoData(geo) {
         name: geoInfo.NAME,
         geoType: geoType || undefined, // for geotype= param
         geoVar: geoVar || undefined, // for naming its own variable param
-        stateId: geoInfo.STATE || undefined, // only used if zcta is NOT 1 of the requested geos
+        stateId: geoInfo.STATE || undefined, // only used if zcta is NOT 1 of geos requested
         countyId: countyId, // ignore 1st 2 digits: stateId
         geoId: geoId, // for the val of the param that geoVar represents
     };
     return geoData;
 }
 
+/**
+ * Create url for a geography's narrative profile based on extracted geography data
+ * @param {Object} geoData from extractGeoData()
+ * @param {string} stateId substitute for undefined geoData.stateId (e.g. for ZCTA), sourced from States geo
+ * @returns {string} url for geography's narrative profile
+ */
 function makeNarrativeProfileUrl(geoData, stateId) {
     let profilesYear = '2019';
     let url = `https://www.census.gov/acs/www/data/data-tables-and-tools/narrative-profiles/${profilesYear}/report.php?geotype=${geoData.geoType}`;
     let considerState = ['county', 'place', 'tract', 'zcta', 'county subdivision'];
-    // there seems to usually be a link between which geos require state/county id as a param in their narrative profiles url and that those geos also include those ids in the geoid, but not always
-    // subdivision url doesn't need state param (but can't hurt) but it DOES need to have stateId removed from geoId
-    // zcta url needs state param but doesn't need to have stateId removed from geoId
-    // unsure how common issues inconsistencies like those above are 
     let considerCounty = ['tract', 'county subdivision'];
     let id = geoData.geoId; // id used in url isn't always geoId
 
@@ -69,8 +72,6 @@ function makeNarrativeProfileUrl(geoData, stateId) {
 
         let st = undefined;
         try {
-            // console.log(`geoData.stateId for ${geoData.geoType}: ${geoData.stateId}`);
-            // console.log(`stateId for ${geoData.geoType}: ${stateId}`);
             st = geoData.stateId || stateId;
             // console.log(`st for ${geoData.geoType} = ${st}`);
             // posssible that they may differ for geos that stretch over multiple states
@@ -81,8 +82,8 @@ function makeNarrativeProfileUrl(geoData, stateId) {
         
         url += `&state=${st}`;
 
-        // remove stateId from geoId -- i tried to nest these but may need to be separate
-        if ( id.slice(0, st.length) === st ) { // not zcta
+        // remove stateId from geoId
+        if ( id.slice(0, st.length) === st ) { // excludes zcta
             id = id.slice(st.length); 
             // console.log(`id for ${geoData.geoType} after removing state: ${id}`);    
         }
@@ -102,27 +103,9 @@ function makeNarrativeProfileUrl(geoData, stateId) {
     return url;
 }
 
-// 1600 Pennsylvania Ave NW, Washington, DC 20500-0003
-// https://www.census.gov/acs/www/data/data-tables-and-tools/narrative-profiles/2018/report.php?geotype=state&state=11
-// geoId=11
-// https://www.census.gov/acs/www/data/data-tables-and-tools/narrative-profiles/2018/report.php?geotype=county&state=11&county=001
-// geoId=11001
-// https://www.census.gov/acs/www/data/data-tables-and-tools/narrative-profiles/2018/report.php?geotype=place&state=11&place=50000
-// geoId=1150000
-// https://www.census.gov/acs/www/data/data-tables-and-tools/narrative-profiles/2019/report.php?geotype=tract&tract=006202&state=11&county=001
-// geoId=11001006202
-// https://www.census.gov/acs/www/data/data-tables-and-tools/narrative-profiles/2019/report.php?geotype=zcta&zcta=20006&state=11
-// geoId=20006
-// https://www.census.gov/acs/www/data/data-tables-and-tools/narrative-profiles/2019/report.php?geotype=msa&msa=47900
-// geoId=47900
-// AIAN ex: https://www.census.gov/acs/www/data/data-tables-and-tools/narrative-profiles/2018/report.php?geotype=aian&aian=0010
-// county subdivision prediction: https://www.census.gov/acs/www/data/data-tables-and-tools/narrative-profiles/2018/report.php?geotype=county%20subdivision&county_sub=50000
-// geoId=50000
-https://www.census.gov/acs/www/data/data-tables-and-tools/narrative-profiles/2018/report.php?geotype=county%20subdivision&state=11&county=001&county_sub=50000
-
-
 /**
- * Takes array of geographies & displays them on widget
+ * Takes array of geographies & displays them as results on widget
+ * @param {Array} geos 
  */
 function displayResults(geos) {
     let resultsSuccessText = 'Results:';
@@ -132,23 +115,18 @@ function displayResults(geos) {
     $('#resultsList').empty();
 
     // let displayOrder = [
-
     // ]
 
-    // issue: zcta requires state in params for narrative profiles, but geocoder api doesn't return STATE attribute (id) for that geography nor can it be derived from the zcta geoid
-    // solution: need to store state id separately
     let stateGeoId = geos.States?.[0].GEOID || undefined;
     console.log(stateGeoId);
 
-    // geos currently displayed in whatever order they get fetched from geocoder, but I'll want to sort them into the order of the narrative profiles at some point
+    
     let geosArr = Object.entries(geos);
     console.log(geosArr);
     geosArr.forEach((geo) => {
         extractGeoData(geo).then( (geoData) => {
-            // make narrative profile url from geo
             let geoUrl = makeNarrativeProfileUrl(geoData, stateGeoId);
 
-            // display result on page
             let html = $(`<p class="singleResult"><a href="${geoUrl}">View ${geoData.name} Narrative Profile</a></p><hr>`);
             // let html = $(`<p class="singleResult"><a href="${geoUrl}">${geoData.geoType}: ${geoData.name}<br>(${geoUrl})</a></p><hr>`); // for testing only
 
@@ -158,6 +136,9 @@ function displayResults(geos) {
     });
 }
 
+/**
+ * Handle on-click submission of address input
+ */
 $('#addressSubmit').on('click', function() {
     /** clear traces of previous results */
     $('#resultsList').empty();
@@ -214,8 +195,8 @@ $('#addressSubmit').on('click', function() {
             } else if ( Object.entries(match[0].geographies).length === 0 ) {
                 console.log(`Error: The Census' TIGERweb API isn't returning any geographies for this address`);
             } else { // true success
-                // console.log(`matchedAddress: ${match[0].matchedAddress}`);
                 let geos = match[0].geographies;
+                // console.log(`matchedAddress: ${match[0].matchedAddress}`);
                 // console.log('Geos returned:');
                 // console.log(geos);
                 // console.log(`number of geos: ${Object.keys(geos).length}`);
