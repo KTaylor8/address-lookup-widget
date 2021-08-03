@@ -226,7 +226,9 @@ $('#addressSubmit').on('click', function() {
 				});
 			} catch (e) {
 				console.log(`no responseJSON for error. verify that it's not a cors issue`);
-				errorMsg = 'An unexpected error has occurred with the app / Geocoder service';
+				errorMsg = `We're sorry, an unexpected error has occurred with the app / Geocoder service`;
+                $('#resultsDescriptor').text(`Unable to access database. Please try again later.`)
+
 			}
             alert(errorMsg);
         }
