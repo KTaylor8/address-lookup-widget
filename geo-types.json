@@ -1,50 +1,62 @@
 {
     "States": {
         "geoType": "state",
-        "geoVar": "state"
+        "geoVar": "state",
+        "displayedGeoType": "State"
     },
     "Counties": {
         "geoType": "county",
-        "geoVar": "county"
+        "geoVar": "county",
+        "displayedGeoType": "County"
     },
     "County Subdivisions": {
         "geoType": "county subdivision",
-        "geoVar": "county_sub"
+        "geoVar": "county_sub",
+        "displayedGeoType": "County Subdivision"
     },
     "Incorporated Places": {
         "geoType": "place",
-        "geoVar": "place"
+        "geoVar": "place",
+        "displayedGeoType": "Place"
     },
     "Census Designated Places": {
         "geoType": "place",
-        "geoVar": "place"
+        "geoVar": "place",
+        "displayedGeoType": "Place"
     },
     "Census Tracts": {
         "geoType": "tract",
-        "geoVar": "tract"
+        "geoVar": "tract",
+        "displayedGeoType": "Census Tract"
     },
     "2010 Census ZIP Code Tabulation Areas": {
         "geoType": "zcta",
-        "geoVar": "zcta"
+        "geoVar": "zcta",
+        "displayedGeoType": "ZIP Code Tabulation Area"
     },
     "Metropolitan Statistical Areas": {
         "geoType": "msa",
-        "geoVar": "msa"
+        "geoVar": "msa",
+        "displayedGeoType": "Metropolitan Statistical Area"
     },
     "Micropolitan Statistical Areas": {
         "geoType": "msa",
-        "geoVar": "msa"
+        "geoVar": "msa",
+        "displayedGeoType": "Micropolitan Statistical Area"
     },
     "Federal American Indian Reservations": {
         "geoType": "aian",
-        "geoVar": "aian"
+        "geoVar": "aian",
+        "displayedGeoType": "American Indian Area"
     },
     "Hawaiian Home Lands": {
         "geoType": "aian",
-        "geoVar": "aian"
+        "geoVar": "aian",
+        "displayedGeoType": "Hawaiian Homeland"
     },
     "Alaska Native Village Statistical Areas": {
         "geoType": "aian",
-        "geoVar": "aian"
+        "geoVar": "aian",
+        "displayedGeoType": "Alaska Native Area"
     }
 }

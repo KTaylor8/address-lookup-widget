@@ -26,12 +26,13 @@ async function extractGeoData(geo) {
         dataType: 'json',
         error: () => {console.log(`cannot get data from ${geoTypesFile}`);}
     });
-    let geoType, geoVar;
+    let geoType, geoVar, displayedGeoType;
     if (json[geo[0]] === undefined) {
         console.log(`unable to find geo ${geo[0]} in json`);
     } else {
         geoType = json[geo[0]].geoType;
         geoVar = json[geo[0]].geoVar;
+        displayedGeoType = json[geo[0]].displayedGeoType;
     }
     let geoInfo = geo[1][0];
 
@@ -47,6 +48,7 @@ async function extractGeoData(geo) {
         stateId: geoInfo.STATE || undefined, // only used if zcta is NOT 1 of geos requested
         countyId: countyId, // ignore 1st 2 digits: stateId
         geoId: geoId, // for the val of the param that geoVar represents
+        displayedGeoType: displayedGeoType
     };
     return geoData;
 }
@@ -108,7 +110,7 @@ function makeNarrativeProfileUrl(geoData, stateId = undefined) {
  * @param {Array} geos 
  */
 function displayResults(geos) {
-    let resultsSuccessText = 'Results:';
+    let resultsSuccessText = 'Found links to profiles for:';
     if ($('#resultsDescriptor').text() != resultsSuccessText) { // transition from pending text
         $('#resultsDescriptor').text(resultsSuccessText);
     }
@@ -127,12 +129,12 @@ function displayResults(geos) {
         extractGeoData(geo).then( (geoData) => {
             let geoUrl = makeNarrativeProfileUrl(geoData, stateGeoId);
 
-            let html = $(`<p class="singleResult"><a href="${geoUrl}" target="_blank">View ${geoData.name} Narrative Profile</a></p><hr>`);
+            let html = $(`<p class="singleResult"><a href="${geoUrl}" target="_blank">${geoData.displayedGeoType}: ${geoData.name}</a></p><hr>`);
             // let html = $(`<p class="singleResult"><a href="${geoUrl}" target="_blank">${geoData.geoType}: ${geoData.name}<br>(${geoUrl})</a></p><hr>`); // for testing only
 
             // temporarily disable sub division option
             if (geoData.geoType === 'county subdivision') {
-                html = $(`<p class="singleResult"><a href="${geoUrl}" target="_blank" onclick="event.preventDefault()" style="color: black; text-decoration: none;">County subdivision: ${geoData.name} <br> (coming soon)</a></p><hr>`);
+                html = $(`<p class="singleResult"><a href="${geoUrl}" target="_blank" onclick="event.preventDefault()" style="color: black; text-decoration: none;">${geoData.displayedGeoType}: ${geoData.name} <br> (coming soon)</a></p><hr>`);
             }
 
             $('#resultsList').append(html);
