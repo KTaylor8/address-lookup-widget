@@ -3,17 +3,6 @@
 */
 
 /**
- * Indicate that no geographies were found for an address
- * (May be used to display an element on the page to indicate the error)
- * @param {string} address address entered by user
- */
-function noAddressesErr(address) {
-    alert(`No geographies found for address "${address}"`);
-    $('#resultsDescriptor').text(`No geographies found for address "${address}"`)
-    // alt option: display an element on page
-}
-
-/**
  * Extracts data from geographies returned by Geocoder API and turns it into a usable geoData object
  * (Will vary based on geos used)
  * @param {Array} geo Geography data returned by Geocoder API
@@ -135,6 +124,17 @@ function displayResults(geos) {
 }
 
 /**
+ * Indicate that no geographies were found for an address
+ * (May be used to display an element on the page to indicate the error)
+ * @param {string} address address entered by user
+ */
+ function noAddressesErr(address) {
+    alert(`No geographies found for address "${address}"`);
+    $('#resultsDescriptor').text(`No geographies found for address "${address}"`)
+    // alt option: display an element on page
+}
+
+/**
  * Handle on-click submission of address input
  */
 $('#addressSubmit').on('click', function() {
@@ -192,6 +192,7 @@ $('#addressSubmit').on('click', function() {
                 noAddressesErr(address);
             } else if ( Object.entries(match[0].geographies).length === 0 ) {
                 console.log(`Error: The Census' TIGERweb API isn't returning any geographies for this address`);
+                $('#resultsDescriptor').text(`No results for this address`)
             } else { // true success
                 let geos = match[0].geographies;
                 // console.log(`matchedAddress: ${match[0].matchedAddress}`);
@@ -215,6 +216,7 @@ $('#addressSubmit').on('click', function() {
 					errorMsg += errorStr;
 					console.log('ERROR (No response): ', errorStr);
 				});
+                $('#resultsDescriptor').text(`Unable to return results.`)
 			} catch (e) {
 				console.log(`no responseJSON for error. verify that it's not a cors issue`);
 				errorMsg = `We're sorry, an unexpected error has occurred with the app / Geocoder service`;
