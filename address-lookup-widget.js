@@ -130,6 +130,11 @@ function displayResults(geos) {
             let html = $(`<p class="singleResult"><a href="${geoUrl}" target="_blank">View ${geoData.name} Narrative Profile</a></p><hr>`);
             // let html = $(`<p class="singleResult"><a href="${geoUrl}" target="_blank">${geoData.geoType}: ${geoData.name}<br>(${geoUrl})</a></p><hr>`); // for testing only
 
+            // temporarily disable sub division option
+            if (geoData.geoType === 'county subdivision') {
+                html = $(`<p class="singleResult"><a href="${geoUrl}" target="_blank" onclick="event.preventDefault()" style="color: black; text-decoration: none;">${geoData.name} <br> (County subdivisions coming soon)</a></p><hr>`);
+            }
+
             $('#resultsList').append(html);
             $(html).slideDown();
         }); 
