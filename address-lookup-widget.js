@@ -132,7 +132,7 @@ function displayResults(geos) {
 
             // temporarily disable sub division option
             if (geoData.geoType === 'county subdivision') {
-                html = $(`<p class="singleResult"><a href="${geoUrl}" target="_blank" onclick="event.preventDefault()" style="color: black; text-decoration: none;">${geoData.name} <br> (County subdivisions coming soon)</a></p><hr>`);
+                html = $(`<p class="singleResult"><a href="${geoUrl}" target="_blank" onclick="event.preventDefault()" style="color: black; text-decoration: none;">County subdivision: ${geoData.name} <br> (coming soon)</a></p><hr>`);
             }
 
             $('#resultsList').append(html);
