@@ -49,42 +49,17 @@ async function extractGeoData(geo) {
 function makeNarrativeProfileUrl(geoData, stateId = undefined) {
     let profilesYear = '2019';
     let url = `https://www.census.gov/acs/www/data/data-tables-and-tools/narrative-profiles/${profilesYear}/report.php?geotype=${geoData.geoType}`;
-    // let considerState = ['county', 'place', 'tract', 'zcta', 'county subdivision'];
-    // let considerCounty = ['tract', 'county subdivision'];
     let id = geoData.geoId; // id used in url isn't always geoId
+    let st = geoData.stateId;
 
-    // determine additional query paramters to add
-    // if ( considerState.includes(geoData.geoType) ) {
+    url += `&state=${st}`;
+    id = id.slice(st.length); // remove stateId from geoId
+    // console.log(`id for ${geoData.geoType} after removing state: ${id}`);    
 
-        let st = geoData.stateId;
-        // let st = undefined;
-        // try {
-        //     st = geoData.stateId || stateId;
-        //     // console.log(`st for ${geoData.geoType} = ${st}`);
-        //     // posssible that they may differ for geos that stretch over multiple states
-        // } catch (e) {
-        //     console.log('Neither a STATE attribute for this geography nor a geoId from the state geography has been detected. You need one or the other in order to create links to each narrative profile.');
-        //     alert('An error occurred while processing data for your address. Any links returned by this tool may not function correctly.');
-        // }
-        
-        url += `&state=${st}`;
+    url += `&county=${geoData.countyId}`;
+    id = id.slice(geoData.countyId.length); // remove countyId from geoId
+    // console.log(`id for ${geoData.geoType} after removing county: ${id}`);
 
-        // remove stateId from geoId
-        // if ( id.slice(0, st.length) === st ) { // excludes zcta
-            id = id.slice(st.length); 
-            // console.log(`id for ${geoData.geoType} after removing state: ${id}`);    
-        // }
-
-        // if ( considerCounty.includes(geoData.geoType) ) {
-            url += `&county=${geoData.countyId}`;
-
-        //     // remove countyId from geoId
-        //     if ( id.slice(0, geoData.countyId.length) === geoData.countyId) {
-                id = id.slice(geoData.countyId.length);
-                // console.log(`id for ${geoData.geoType} after removing county: ${id}`);
-        //     }
-        // }
-    // }
     url += `&${geoData.geoVar}=${id}`;
     url = encodeURI(url);
     return url;
@@ -101,13 +76,6 @@ function displayResults(geos) {
     }
     $('#resultsList').empty();
 
-    // let displayOrder = [
-    // ]
-
-    // let stateGeoId = geos.States?.[0].GEOID || undefined;
-    // console.log(stateGeoId);
-
-    
     let geosArr = Object.entries(geos);
     console.log(geosArr);
     geosArr.forEach((geo) => {
@@ -115,7 +83,6 @@ function displayResults(geos) {
             let geoUrl = makeNarrativeProfileUrl(geoData);
 
             let html = $(`<p class="singleResult"><a href="${geoUrl}" target="_blank">View ${geoData.name} Narrative Profile</a></p><hr>`);
-            // let html = $(`<p class="singleResult"><a href="${geoUrl}" target="_blank">${geoData.geoType}: ${geoData.name}<br>(${geoUrl})</a></p><hr>`); // for testing only
 
             $('#resultsList').append(html);
             $(html).slideDown();
@@ -151,33 +118,15 @@ $('#addressSubmit').on('click', function() {
     console.log(`address entered: ${address}`);
     let benchmark = 'Public_AR_Current';
     let vintage = 'ACS2019_Current'; // current to ACS, not (decennial) Census
-    let layersArr = [
-        'Census Tracts',
-        // 'States', // required for '2010 Census ZIP Code Tabulation Areas' layer
-        // '2010 Census ZIP Code Tabulation Areas', // requires 'States' layer
-        // 'Counties',
-        // 'County Subdivisions',
-        // // places:
-        // 'Census Designated Places',
-        // 'Incorporated Places',
-        // // msas:
-        // 'Metropolitan Statistical Areas',
-        // 'Micropolitan Statistical Areas',
-        // // aians:
-        // 'Federal American Indian Reservations',
-        // 'Hawaiian Home Lands',
-        // 'Alaska Native Village Statistical Areas'
-    ];
-    let layers = layersArr.join(',');
-    // let layers = 'all';
-    let url = encodeURI(`https://geocoding.geo.census.gov/geocoder/geographies/onelineaddress?benchmark=${benchmark}&vintage=${vintage}&layers=${layers}&format=json&address=${address}`);
+    let layer = 'Census Tracts';
+    // layer = 'all';
+    let url = encodeURI(`https://geocoding.geo.census.gov/geocoder/geographies/onelineaddress?benchmark=${benchmark}&vintage=${vintage}&layers=${layer}&format=json&address=${address}`);
     $.ajax({
         url: url,
         method: 'GET',
         dataType: 'json',
         crossDomain: true,
         success: function( resp ) {
-            // console.log(resp);
             let match = resp.result.addressMatches;
             
             // sometimes errs returned on success
@@ -195,10 +144,6 @@ $('#addressSubmit').on('click', function() {
                 $('#resultsDescriptor').text(`No results for this address`)
             } else { // true success
                 let geos = match[0].geographies;
-                // console.log(`matchedAddress: ${match[0].matchedAddress}`);
-                // console.log('Geos returned:');
-                // console.log(geos);
-                // console.log(`number of geos: ${Object.keys(geos).length}`);
                 displayResults(geos);
             }
         }
