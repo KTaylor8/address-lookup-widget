@@ -76,26 +76,24 @@ function displayResults(geos) {
     }
     $('#resultsList').empty();
 
-    let geosArr = Object.entries(geos);
-    console.log(geosArr);
-    geosArr.forEach((geo) => {
-        extractGeoData(geo).then( (geoData) => {
-            let geoUrl = makeNarrativeProfileUrl(geoData);
+    let tractArr = Object.entries(geos)[0];
+    // console.log(tractArr);
+    extractGeoData(tractArr).then( (geoData) => {
+        let geoUrl = makeNarrativeProfileUrl(geoData);
 
-            let html = $(
-                `<div class="singleResult">
-                    ${geoData.name}
-                    <a href="${geoUrl}" target="_blank">
-                        <button class="uscb-secondary-button" type="button">View Narrative Profile</button>
-                    </a>
-                    <hr>
-                </div>`
-            );
+        let html = $(
+            `<div class="singleResult">
+                ${geoData.name}
+                <a href="${geoUrl}" target="_blank">
+                    <button class="uscb-secondary-button" type="button">View Narrative Profile</button>
+                </a>
+                <hr>
+            </div>`
+        );
 
-            $('#resultsList').append(html);
-            $(html).slideDown();
-        }); 
-    });
+        $('#resultsList').append(html);
+        $(html).slideDown();
+    }); 
 }
 
 /**
@@ -123,7 +121,6 @@ $('#addressSubmit').on('click', function() {
 
     /** process input */
     let address = document.getElementById('addressInput').value;
-    console.log(`address entered: ${address}`);
     let benchmark = 'Public_AR_Current';
     let vintage = 'ACS2019_Current'; // current to ACS, not (decennial) Census
     let layer = 'Census Tracts';
