@@ -70,7 +70,7 @@ function makeNarrativeProfileUrl(geoData, stateId = undefined) {
  * @param {Array} geos 
  */
 function displayResults(geos) {
-    let resultsSuccessText = 'Found results for:';
+    let resultsSuccessText = 'Tract found:';
     if ($('#resultsDescriptor').text() != resultsSuccessText) { // transition from pending text
         $('#resultsDescriptor').text(resultsSuccessText);
     }
