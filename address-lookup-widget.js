@@ -70,7 +70,7 @@ function makeNarrativeProfileUrl(geoData, stateId = undefined) {
  * @param {Array} geos 
  */
 function displayResults(geos) {
-    let resultsSuccessText = 'Result:';
+    let resultsSuccessText = 'Found results for:';
     if ($('#resultsDescriptor').text() != resultsSuccessText) { // transition from pending text
         $('#resultsDescriptor').text(resultsSuccessText);
     }
@@ -82,7 +82,15 @@ function displayResults(geos) {
         extractGeoData(geo).then( (geoData) => {
             let geoUrl = makeNarrativeProfileUrl(geoData);
 
-            let html = $(`<p class="singleResult"><a href="${geoUrl}" target="_blank">View ${geoData.name} Narrative Profile</a></p><hr>`);
+            let html = $(
+                `<div class="singleResult">
+                    ${geoData.name}
+                    <a href="${geoUrl}" target="_blank">
+                        <button class="uscb-secondary-button" type="button">View Narrative Profile</button>
+                    </a>
+                    <hr>
+                </div>`
+            );
 
             $('#resultsList').append(html);
             $(html).slideDown();
