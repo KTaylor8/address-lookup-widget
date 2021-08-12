@@ -57,9 +57,6 @@ function makeNarrativeProfileUrl(geoData, stateId = undefined) {
 
     // determine additional query paramters to add
     if ( considerState.includes(geoData.geoType) ) {
-        if (geoData.geoType === 'tract') {
-            console.log(`countyId for tract === ${geoData.countyId}`);
-        }
 
         let st = undefined;
         try {
@@ -99,7 +96,7 @@ function makeNarrativeProfileUrl(geoData, stateId = undefined) {
  * @param {Array} geos 
  */
 function displayResults(geos) {
-    let resultsSuccessText = 'Found links to profiles for:';
+    let resultsSuccessText = 'Found results for:';
     if ($('#resultsDescriptor').text() != resultsSuccessText) { // transition from pending text
         $('#resultsDescriptor').text(resultsSuccessText);
     }
@@ -111,19 +108,32 @@ function displayResults(geos) {
     let stateGeoId = geos.States?.[0].GEOID || undefined;
     console.log(stateGeoId);
 
-    
     let geosArr = Object.entries(geos);
     console.log(geosArr);
     geosArr.forEach((geo) => {
         extractGeoData(geo).then( (geoData) => {
             let geoUrl = makeNarrativeProfileUrl(geoData, stateGeoId);
 
-            let html = $(`<p class="singleResult"><a href="${geoUrl}" target="_blank">${geoData.displayedGeoType}: ${geoData.name}</a></p><hr>`);
-            // let html = $(`<p class="singleResult"><a href="${geoUrl}" target="_blank">${geoData.geoType}: ${geoData.name}<br>(${geoUrl})</a></p><hr>`); // for testing only
+            let html = $(
+                `<div class="singleResult">
+                    ${geoData.displayedGeoType}: ${geoData.name}
+                    <a href="${geoUrl}" target="_blank">
+                        <button class="uscb-secondary-button" type="button">View Narrative Profile</button>
+                    </a>
+                    <hr>
+                </div>`
+            );
 
             // temporarily disable sub division option
             if (geoData.geoType === 'county subdivision') {
-                html = $(`<p class="singleResult"><a href="${geoUrl}" target="_blank" onclick="event.preventDefault()" style="color: black; text-decoration: none;">${geoData.displayedGeoType}: ${geoData.name} <br> (coming soon)</a></p><hr>`);
+                html = $(
+                    `<div class="singleResult">
+                        ${geoData.displayedGeoType}: ${geoData.name} 
+                        <br>
+                        <a href="${geoUrl}" target="_blank" onclick="event.preventDefault()" style="color: black; text-decoration: none">(Narrative Profile Coming Soon)</a>
+                        <hr>
+                    </div>`
+                );
             }
 
             $('#resultsList').append(html);
