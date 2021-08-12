@@ -116,7 +116,9 @@ function displayResults(geos) {
 
             let html = $(
                 `<div class="singleResult">
-                    ${geoData.displayedGeoType}: ${geoData.name}
+                    ${geoData.displayedGeoType}:
+                    <br>
+                    ${geoData.name}
                     <a href="${geoUrl}" target="_blank">
                         <button class="uscb-secondary-button" type="button">View Narrative Profile</button>
                     </a>
@@ -128,7 +130,9 @@ function displayResults(geos) {
             if (geoData.geoType === 'county subdivision') {
                 html = $(
                     `<div class="singleResult">
-                        ${geoData.displayedGeoType}: ${geoData.name} 
+                        ${geoData.displayedGeoType}:
+                        <br>
+                        ${geoData.name} 
                         <br>
                         <a href="${geoUrl}" target="_blank" onclick="event.preventDefault()" style="color: black; text-decoration: none">(Narrative Profile Coming Soon)</a>
                         <hr>
