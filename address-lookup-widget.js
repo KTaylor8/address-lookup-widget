@@ -41,56 +41,6 @@ async function extractGeoData(geo) {
     };
     return geoData;
 }
-
-/**
- * Create url for a geography's narrative profile based on extracted geography data
- * @param {Object} geoData from extractGeoData()
- * @param {string} stateId substitute for undefined geoData.stateId (e.g. for ZCTA), sourced from States geo
- * @returns {string} url for geography's narrative profile
- */
-function makeNarrativeProfileUrl(geoData, stateId = undefined) {
-    let profilesYear = '2019';
-    let url = `https://www.census.gov/acs/www/data/data-tables-and-tools/narrative-profiles/${profilesYear}/report.php?geotype=${geoData.geoType}`;
-    let considerState = ['county', 'place', 'tract', 'zcta', 'county subdivision'];
-    let considerCounty = ['tract', 'county subdivision'];
-    let id = geoData.geoId; // id used in url isn't always geoId
-
-    // determine additional query paramters to add
-    if ( considerState.includes(geoData.geoType) ) {
-
-        let st = undefined;
-        try {
-            st = geoData.stateId || stateId;
-            // console.log(`st for ${geoData.geoType} = ${st}`);
-            // posssible that they may differ for geos that stretch over multiple states
-        } catch (e) {
-            console.log('Neither a STATE attribute for this geography nor a geoId from the state geography has been detected. You need one or the other in order to create links to each narrative profile.');
-            alert('An error occurred while processing data for your address. Any links returned by this tool may not function correctly.');
-        }
-        
-        url += `&state=${st}`;
-
-        // remove stateId from geoId
-        if ( id.slice(0, st.length) === st ) { // excludes zcta
-            id = id.slice(st.length); 
-            // console.log(`id for ${geoData.geoType} after removing state: ${id}`);    
-        }
-
-        if ( considerCounty.includes(geoData.geoType) ) {
-            url += `&county=${geoData.countyId}`;
-
-            // remove countyId from geoId
-            if ( id.slice(0, geoData.countyId.length) === geoData.countyId) {
-                id = id.slice(geoData.countyId.length);
-                // console.log(`id for ${geoData.geoType} after removing county: ${id}`);
-            }
-        }
-    }
-    url += `&${geoData.geoVar}=${id}`;
-    url = encodeURI(url);
-    return url;
-}
-
 /**
  * Takes array of geographies & displays them as results on widget
  * @param {Array} geos 
@@ -106,39 +56,20 @@ function displayResults(geos) {
     // ]
 
     let stateGeoId = geos.States?.[0].GEOID || undefined;
-    console.log(stateGeoId);
+    // console.log(stateGeoId);
 
     let geosArr = Object.entries(geos);
-    console.log(geosArr);
+    // console.log(geosArr);
     geosArr.forEach((geo) => {
         extractGeoData(geo).then( (geoData) => {
-            let geoUrl = makeNarrativeProfileUrl(geoData, stateGeoId);
-
             let html = $(
                 `<div class="singleResult">
                     ${geoData.displayedGeoType}:
                     <br>
                     ${geoData.name}
-                    <a href="${geoUrl}" target="_blank">
-                        <button class="uscb-secondary-button" type="button">View Narrative Profile</button>
-                    </a>
                     <hr>
                 </div>`
             );
-
-            // temporarily disable sub division option
-            if (geoData.geoType === 'county subdivision') {
-                html = $(
-                    `<div class="singleResult">
-                        ${geoData.displayedGeoType}:
-                        <br>
-                        ${geoData.name} 
-                        <br>
-                        <a href="${geoUrl}" target="_blank" onclick="event.preventDefault()" style="color: black; text-decoration: none">(Narrative Profile Coming Soon)</a>
-                        <hr>
-                    </div>`
-                );
-            }
 
             $('#resultsList').append(html);
             $(html).slideDown();
@@ -171,7 +102,7 @@ $('#addressSubmit').on('click', function() {
 
     /** process input */
     let address = document.getElementById('addressInput').value;
-    console.log(`address entered: ${address}`);
+    // console.log(`address entered: ${address}`);
     let benchmark = 'Public_AR_Current';
     let vintage = 'ACS2019_Current'; // current to ACS, not (decennial) Census
     let layersArr = [
@@ -200,7 +131,6 @@ $('#addressSubmit').on('click', function() {
         dataType: 'json',
         crossDomain: true,
         success: function( resp ) {
-            console.log(resp);
             let match = resp.result.addressMatches;
             
             // sometimes errs returned on success
@@ -218,10 +148,6 @@ $('#addressSubmit').on('click', function() {
                 $('#resultsDescriptor').text(`No results for this address`)
             } else { // true success
                 let geos = match[0].geographies;
-                // console.log(`matchedAddress: ${match[0].matchedAddress}`);
-                // console.log('Geos returned:');
-                // console.log(geos);
-                // console.log(`number of geos: ${Object.keys(geos).length}`);
                 displayResults(geos);
             }
         }
@@ -239,7 +165,7 @@ $('#addressSubmit').on('click', function() {
 					errorMsg += errorStr;
 					console.log('ERROR (No response): ', errorStr);
 				});
-                $('#resultsDescriptor').text(`Unable to return results.`)
+                $('#resultsDescriptor').text(`Unable to return results from Census Geocoder.`)
 			} catch (e) {
 				console.log(`no responseJSON for error. verify that it's not a cors issue`);
 				errorMsg = `We're sorry, an unexpected error has occurred with the app / Geocoder service`;
