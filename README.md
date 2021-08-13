@@ -2,7 +2,11 @@
 
 This widget allows users to input their address and get back data concerning the geographies in which their address is located, using data from the Census MAF/TIGER database via the Census Geocoder API.
 
-This widget is tailored to return Narrative Profile URLs (main branch). However, it is intended to be available for adaptation to return other geographies and integration in multiple applications around the U.S. Census Bureau where users currently have to use the separate Geocoder application.
+The main branch of this widget is the most general and is configured to return data for sample variety of geographies (which are currently those available on the Census Narrative Profiles app as of 8/13/2021). However, it's intended to be adapted to return other geographies and integrated in multiple applications around the U.S. Census Bureau.
+
+## Branch: narrative-profiles
+
+This version of the widget returns not only geography names but also links to narrative profiles for the geographies available on the Census Narrative Profiles app as of 8/13/2021.
 
 ## Branch: tract-only
 
