@@ -54,6 +54,10 @@ These are the main addresses used during testing.
 
 ## Miscellaneous Notes
 
+### RE: Use Outside of Census Servers
+
+If you try to directly implement this widget in an application not running on the Census' web servers, your requests to the Geocoder API will be blocked from loading data in browser by a Cross-Origin Request Blocked error because the Geocoder API's servers do not have the CORS header 'Access-Control-Allow-Origin' set. There are currently no plans to open the Geocoder API to request origins other than the Census' own web servers; this process itself is underway as of 8/13/2021 as previously the API was not set to allow requests from Census origins either. If you would like to use this widget elsewhere, you must build a proxy in order to get around the CORS issue.
+
 ### RE: User Input
 
 Anything between the street address & city (e.g. apartment number) is ignored automatically.
