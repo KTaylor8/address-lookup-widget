@@ -2,7 +2,11 @@
 
 This widget allows users to input their address and get back data concerning the geographies in which their address is located, using data from the Census MAF/TIGER database via the Census Geocoder API.
 
-This widget is tailored to return Narrative Profile URLs (main branch). However, it is intended to be available for adaptation to return other geographies and integration in multiple applications around the U.S. Census Bureau where users currently have to use the separate Geocoder application.
+The main branch of this widget is the most general and is configured to return data for sample variety of geographies (which are currently those available on the Census Narrative Profiles app as of 8/13/2021). However, it's intended to be adapted to return other geographies and integrated in multiple applications around the U.S. Census Bureau.
+
+## Branch: narrative-profiles
+
+This version of the widget returns not only geography names but also links to narrative profiles for the geographies available on the Census Narrative Profiles app as of 8/13/2021.
 
 ## Branch: tract-only
 
@@ -49,6 +53,10 @@ These are the main addresses used during testing.
 3. If creating any sort of URLs from your geo data: Reference the needed URL form. Determine if your use case for the new geography data requires any additional URL parameters not already handled by the widget, or if the geoId extracted needs to have further digits (e.g. state id or county id) removed (i.e. as already determined by the arrays considerState and considerCounty in makeNarrativeProfileUrl()). This may entail storing more data in each geoData object (in extractGeoData()).
 
 ## Miscellaneous Notes
+
+### RE: Use Outside of Census Servers
+
+If you try to directly implement this widget in an application not running on the Census' web servers, your requests to the Geocoder API will be blocked from loading data in browser by a Cross-Origin Request Blocked error because the Geocoder API's servers do not have the CORS header 'Access-Control-Allow-Origin' set. There are currently no plans to open the Geocoder API to request origins other than the Census' own web servers; this process itself is underway as of 8/13/2021 as previously the API was not set to allow requests from Census origins either. If you would like to use this widget elsewhere, you must build a proxy in order to get around the CORS issue.
 
 ### RE: User Input
 
