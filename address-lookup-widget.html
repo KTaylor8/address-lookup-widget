@@ -26,8 +26,10 @@
           <br>
           Incomplete addresses will not return accurate results.
         </p>
-        <textarea type='text' id='addressInput' placeholder='12345 E 22nd St, Exampleville, WA 67890'></textarea>
-        <button type='button' id='addressSubmit' class='uscb-primary-button'>Look Up Address</button>
+        <form onsubmit='handleSubmit(event);'>
+          <textarea type='text' id='addressInput' name='address' placeholder='12345 E 22nd St, Exampleville, WA 67890' rows='3' minlength='5' maxlength='100'></textarea>
+          <input type='submit' id='addressSubmit' class='uscb-primary-button' value='Look Up Address'></input>
+        </form>
         <div id='results'>
           <div id='resultsDescriptor'></div>
           <div id='resultsList'></div>
