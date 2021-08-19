@@ -110,7 +110,9 @@ function displayResults(geos) {
 /**
  * Handle on-click submission of address input
  */
-$('#addressSubmit').on('click', function() {
+function handleSubmit(event) {
+    event.preventDefault();
+
     /** clear traces of previous results */
     $('#resultsList').empty();
     $('#resultsDescriptor').text('Looking up address...');
@@ -158,7 +160,6 @@ $('#addressSubmit').on('click', function() {
             console.log(err.responseJSON);
 
             let errorMsg = '';
-            // most common error is if address is empty or >100 chars
 			try {
 				let errs = err.responseJSON.errors || err.responseJSON.exceptions;
 				console.log(errs);
@@ -169,11 +170,11 @@ $('#addressSubmit').on('click', function() {
                 $('#resultsDescriptor').text(`Unable to return results.`)
 			} catch (e) {
 				console.log(`no responseJSON for error. verify that it's not a cors issue`);
-				errorMsg = `We're sorry, an unexpected error has occurred with the app / Geocoder service`;
+				errorMsg = `An unexpected error has occurred with the app / Geocoder service`;
                 $('#resultsDescriptor').text(`Unable to access database. Please try again later.`)
 
 			}
             alert(errorMsg);
         }
     });
-});
+}
